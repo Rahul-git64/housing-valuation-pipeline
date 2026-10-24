@@ -1,0 +1,53 @@
+project:
+  name: "housing-valuation-pipeline"
+  version: "0.1.0"
+
+data:
+  raw_data_path: "artifacts/data/raw_housing.csv"
+  train_data_path: "artifacts/data/train_housing.csv"
+  test_data_path: "artifacts/data/test_housing.csv"
+  test_size: 0.2
+  random_state: 42
+  synthetic_rows: 1600
+
+features:
+  target_column: "median_house_value"
+  numerical_columns:
+    - "median_income"
+    - "house_age"
+    - "avg_rooms"
+    - "avg_bedrooms"
+    - "population"
+    - "avg_occupancy"
+    - "latitude"
+    - "longitude"
+    - "lot_area_sqft"
+    - "overall_quality"
+  categorical_columns:
+    - "ocean_proximity"
+  categories:
+    ocean_proximity:
+      - "<1H OCEAN"
+      - "INLAND"
+      - "NEAR OCEAN"
+      - "NEAR BAY"
+      - "ISLAND"
+
+model:
+  artifacts_dir: "artifacts/models"
+  preprocessor_filename: "preprocessor.joblib"
+  model_filename: "model_bundle.joblib"
+  metadata_filename: "metadata.json"
+  reference_stats_filename: "reference_stats.json"
+  r2_threshold: 0.72
+  quantiles:
+    p10: 0.10
+    p50: 0.50
+    p90: 0.90
+
+monitoring:
+  window_size: 200
+  ks_alpha: 0.05
+  psi_threshold: 0.20
+  categorical_l1_threshold: 0.25
+  income_price_ratio_psi_threshold: 0.20
