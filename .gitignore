@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+
+# Data, artifacts, and model binaries
+artifacts/
+*.pkl
+*.joblib
+*.pt
+*.h5
+*.onnx
+*.csv
+*.parquet
+!tests/fixtures/*.csv
+
+# Logs and local experiment tracking
+logs/
+*.log
+mlruns/
+wandb/
+catboost_info/
+.dvc/
+
+# Testing & linting caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
