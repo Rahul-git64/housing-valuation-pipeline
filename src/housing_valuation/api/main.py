@@ -7,7 +7,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 
 from housing_valuation.api.monitoring import DriftSupervisor
 from housing_valuation.api.schemas import (
@@ -121,7 +121,7 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
         )
 
     @app.post("/predict/legacy", response_model=HousingPredictionResponse, tags=["Inference"])
-    def predict_legacy_payload(payload: dict[str, Any] = Body(...)) -> HousingPredictionResponse:
+    def predict_legacy_payload(payload: dict[str, Any]) -> HousingPredictionResponse:
         """Backward-compatible endpoint adapting legacy structural keys while stripping unethical columns."""
         t0 = time.perf_counter()
         try:
