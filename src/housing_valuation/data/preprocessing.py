@@ -64,7 +64,11 @@ class HousingFeatureEngineer(BaseEstimator, TransformerMixin):
         safe_occ = np.maximum(df["avg_occupancy"].astype(float), 0.25)
         safe_lot = np.maximum(df["lot_area_sqft"].astype(float), 100.0)
 
-        df["bedroom_to_room_ratio"] = df["avg_bedrooms"].astype(float) / safe_rooms
+        df["bedroom_to_room_ratio"] = np.clip(
+            df["avg_bedrooms"].astype(float) / safe_rooms,
+            0.05,
+            1.0,
+        )
         df["rooms_per_person"] = safe_rooms / safe_occ
         df["income_per_room"] = df["median_income"].astype(float) / safe_rooms
         df["log_lot_area"] = np.log1p(safe_lot)

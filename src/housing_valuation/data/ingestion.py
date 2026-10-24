@@ -167,11 +167,14 @@ def ingest_data(config: AppConfig, source_path: Path | None = None) -> tuple[pd.
 
     validated_df = validate_housing_dataframe(df, config, require_target=True)
 
+    min_class_count = int(validated_df["ocean_proximity"].value_counts().min())
+    stratify_col = validated_df["ocean_proximity"] if min_class_count >= 2 else None
+
     train_df, test_df = train_test_split(
         validated_df,
         test_size=config.data.test_size,
         random_state=config.data.random_state,
-        stratify=validated_df["ocean_proximity"],
+        stratify=stratify_col,
     )
 
     config.data.train_data_path.parent.mkdir(parents=True, exist_ok=True)
