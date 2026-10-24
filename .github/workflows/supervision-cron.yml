@@ -1,0 +1,39 @@
+name: Supervision Cron
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  supervise-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and boot supervised container
+        run: |
+          docker build -t housing-valuation-supervision:latest .
+          docker run -d --name housing-supervision -p 8000:8000 housing-valuation-supervision:latest
+          for i in $(seq 1 25); do
+            if curl -fsS http://127.0.0.1:8000/health > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Verify health and affordability drift supervision endpoints
+        run: |
+          curl -fsS http://127.0.0.1:8000/health | tee health.json
+          for inc in 3.5 4.8 5.9 7.1 8.4 9.6; do
+            curl -fsS -X POST http://127.0.0.1:8000/predict \
+              -H "Content-Type: application/json" \
+              -d "{\"median_income\":$inc,\"house_age\":24.0,\"avg_rooms\":6.1,\"avg_bedrooms\":1.2,\"population\":1200.0,\"avg_occupancy\":2.75,\"latitude\":37.77,\"longitude\":-122.41,\"lot_area_sqft\":5500.0,\"overall_quality\":7,\"ocean_proximity\":\"NEAR BAY\"}" > /dev/null
+          done
+          curl -fsS http://127.0.0.1:8000/monitor/drift | tee drift.json
+          python -c "import json; d=json.load(open('drift.json')); assert d['status'] in ('healthy', 'drift_detected'), d; assert 'income_to_price_ratio_drift' in d"
+
+      - name: Tear down container
+        if: always()
+        run: docker rm -f housing-supervision || true
